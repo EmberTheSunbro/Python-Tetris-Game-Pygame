@@ -7,9 +7,12 @@ def rotate_positions_90_clockwise(positions):
 	"""
 	Rotate a list of positions 90 degrees clockwise around their geometric center.
 	
-	Uses proper rotation matrix mathematics:
-	For 90° clockwise rotation: (x, y) -> (y, -x)
-	In grid coordinates (row, col): (row, col) -> (col, -row)
+	In a grid coordinate system where:
+	- row increases downward (positive = down)
+	- col increases rightward (positive = right)
+	
+	90° clockwise rotation: (row, col) -> (col, -row) relative to origin
+	But we need to account for the fact that -row means "up" in our system.
 	
 	The rotation is performed around the center of the bounding box,
 	then the result is normalized to start from (0, 0).
@@ -23,6 +26,9 @@ def rotate_positions_90_clockwise(positions):
 	if not positions:
 		return []
 	
+	# Create a copy of positions to avoid modifying the original
+	positions = [Position(p.row, p.column) for p in positions]
+	
 	# Find bounding box
 	min_row = min(p.row for p in positions)
 	max_row = max(p.row for p in positions)
@@ -30,38 +36,57 @@ def rotate_positions_90_clockwise(positions):
 	max_col = max(p.column for p in positions)
 	
 	# Calculate center of bounding box
-	# Center can be half-integer for even-sized blocks (e.g., 2x2 block has center at 0.5, 0.5)
+	# Use floating point for precision, then round
 	center_row = (min_row + max_row) / 2.0
 	center_col = (min_col + max_col) / 2.0
 	
 	# Rotate each position 90 degrees clockwise around the center
-	# Rotation matrix for 90° clockwise: [0  1]   [x]   [y]
-	#                                    [-1 0] * [y] = [-x]
-	# In grid coords: (row, col) -> (col, -row) relative to origin
+	# For 90° clockwise: translate to origin, rotate, translate back
+	# Rotation formula: (row, col) -> (col, -row) around origin
 	rotated = []
 	for pos in positions:
-		# Step 1: Translate to center-origin coordinates
-		rel_row = pos.row - center_row
-		rel_col = pos.column - center_col
+		# Translate to center-origin coordinates
+		rel_row = float(pos.row) - center_row
+		rel_col = float(pos.column) - center_col
 		
-		# Step 2: Apply 90° clockwise rotation matrix
-		# (row, col) -> (col, -row)
+		# Apply 90° clockwise rotation: (row, col) -> (col, -row)
+		# This means: new_row = old_col, new_col = -old_row
 		new_rel_row = rel_col
 		new_rel_col = -rel_row
 		
-		# Step 3: Translate back from center
+		# Translate back from center
 		new_row = center_row + new_rel_row
 		new_col = center_col + new_rel_col
 		
-		# Step 4: Round to nearest integer (grid positions must be integers)
+		# Round to nearest integer
 		rotated.append(Position(int(round(new_row)), int(round(new_col))))
 	
-	# Step 5: Normalize to start from (0, 0) by finding the new minimum
-	min_rot_row = min(p.row for p in rotated)
-	min_rot_col = min(p.column for p in rotated)
-	normalized = [Position(p.row - min_rot_row, p.column - min_rot_col) for p in rotated]
+	# Normalize to start from (0, 0) by finding the new minimum
+	if rotated:
+		min_rot_row = min(p.row for p in rotated)
+		min_rot_col = min(p.column for p in rotated)
+		normalized = [Position(p.row - min_rot_row, p.column - min_rot_col) for p in rotated]
+	else:
+		normalized = []
 	
 	return normalized
+
+def normalize_shape(positions):
+	"""
+	Normalize a shape to start from (0, 0).
+	
+	Args:
+		positions: List of Position objects
+		
+	Returns:
+		Normalized list of Position objects starting from (0, 0)
+	"""
+	if not positions:
+		return []
+	
+	min_row = min(p.row for p in positions)
+	min_col = min(p.column for p in positions)
+	return [Position(p.row - min_row, p.column - min_col) for p in positions]
 
 def generate_rotation_states(base_shape, max_rotations=4):
 	"""
@@ -74,12 +99,23 @@ def generate_rotation_states(base_shape, max_rotations=4):
 	Returns:
 		Dictionary mapping rotation state (0, 1, 2, 3) to list of Position objects
 	"""
-	rotation_states = {0: base_shape}
+	# Create a deep copy of the base shape and normalize it
+	normalized_base = normalize_shape([Position(p.row, p.column) for p in base_shape])
+	rotation_states = {0: normalized_base}
 	
-	current_shape = base_shape
+	current_shape = normalized_base
 	for rotation in range(1, max_rotations):
-		# Rotate the current shape
-		rotated = rotate_positions_90_clockwise(current_shape)
+		# Create a fresh copy of current_shape for rotation
+		shape_copy = [Position(p.row, p.column) for p in current_shape]
+		
+		# Rotate the shape copy
+		rotated = rotate_positions_90_clockwise(shape_copy)
+		
+		# Validate that rotated positions are reasonable (not way off the grid)
+		# Check if any position has very large coordinates (likely an error)
+		max_coord = max(max(abs(p.row), abs(p.column)) for p in rotated) if rotated else 0
+		if max_coord > 20:  # Sanity check - blocks shouldn't be this large
+			raise ValueError(f"Rotation produced invalid coordinates: {rotated}")
 		
 		# Check if this rotation is the same as a previous one (for symmetric blocks)
 		# Compare by converting to sorted tuples for comparison
@@ -98,7 +134,8 @@ def generate_rotation_states(base_shape, max_rotations=4):
 			# This rotation repeats a previous one, stop generating
 			break
 		
-		rotation_states[rotation] = rotated
-		current_shape = rotated
+		# Store a fresh copy of the rotated shape
+		rotation_states[rotation] = [Position(p.row, p.column) for p in rotated]
+		current_shape = rotation_states[rotation]
 	
 	return rotation_states
