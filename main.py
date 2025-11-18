@@ -22,9 +22,6 @@ clock = pygame.time.Clock()
 
 game = Game()
 
-GAME_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(GAME_UPDATE, 200)
-
 # Difficulty slider state
 slider_dragging = False
 slider_min = 0.5
@@ -32,21 +29,19 @@ slider_max = 2.0
 slider_x_min = difficulty_rect.x + 10
 slider_x_max = difficulty_rect.x + difficulty_rect.width - 10
 slider_handle_width = 20
-last_speed_update = pygame.time.get_ticks()
 
-def update_game_speed():
-	"""Update the game timer based on current speed"""
-	current_speed = game.get_current_speed()
-	pygame.time.set_timer(GAME_UPDATE, current_speed)
-
-update_game_speed()
+# Time-based block movement (instead of timer events)
+last_block_update = pygame.time.get_ticks()
 
 while True:
-	# Periodically update game speed (every 100ms to avoid constant timer resets)
 	current_time = pygame.time.get_ticks()
-	if current_time - last_speed_update > 100:
-		update_game_speed()
-		last_speed_update = current_time
+	
+	# Check if enough time has passed to move block down
+	if not game.game_over:
+		current_speed = game.get_current_speed()
+		if current_time - last_block_update >= current_speed:
+			game.move_down()
+			last_block_update = current_time
 	
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -56,7 +51,7 @@ while True:
 			if game.game_over == True:
 				game.game_over = False
 				game.reset()
-				update_game_speed()  # Reset speed timer on game reset
+				last_block_update = pygame.time.get_ticks()  # Reset timer on game reset
 			if event.key == pygame.K_LEFT and game.game_over == False:
 				game.move_left()
 			if event.key == pygame.K_RIGHT and game.game_over == False:
@@ -66,8 +61,6 @@ while True:
 				game.update_score(0, 1)
 			if event.key == pygame.K_UP and game.game_over == False:
 				game.rotate()
-		if event.type == GAME_UPDATE and game.game_over == False:
-			game.move_down()
 		
 		# Handle slider mouse events
 		if event.type == pygame.MOUSEBUTTONDOWN:
@@ -91,7 +84,6 @@ while True:
 				# Convert to difficulty range
 				difficulty_value = slider_min + normalized * (slider_max - slider_min)
 				game.set_difficulty(difficulty_value)
-				update_game_speed()  # Update speed immediately when difficulty changes
 
 	#Drawing
 	score_value_surface = title_font.render(str(game.score), True, Colors.white)
