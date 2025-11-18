@@ -85,6 +85,66 @@ BLOCKS = {
 		},
 		"initial_offset": (0, 3),
 		"preview_offset": (270, 270)
+	},
+	"P": {
+		"id": 8,
+		"name": "Plus Block",
+		"cells": {
+			0: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
+			1: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
+			2: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
+			3: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)]
+		},
+		"initial_offset": (0, 3),
+		"preview_offset": (270, 270)
+	},
+	"U": {
+		"id": 9,
+		"name": "U Block",
+		"cells": {
+			0: [Position(0, 0), Position(0, 2), Position(1, 0), Position(1, 1), Position(1, 2)],
+			1: [Position(0, 0), Position(0, 1), Position(1, 0), Position(2, 0), Position(2, 1)],
+			2: [Position(0, 0), Position(0, 1), Position(0, 2), Position(1, 0), Position(1, 2)],
+			3: [Position(0, 1), Position(0, 2), Position(1, 2), Position(2, 1), Position(2, 2)]
+		},
+		"initial_offset": (0, 3),
+		"preview_offset": (270, 270)
+	},
+	"X": {
+		"id": 10,
+		"name": "X Block",
+		"cells": {
+			0: [Position(0, 0), Position(0, 2), Position(1, 1), Position(2, 0), Position(2, 2)],
+			1: [Position(0, 0), Position(0, 2), Position(1, 1), Position(2, 0), Position(2, 2)],
+			2: [Position(0, 0), Position(0, 2), Position(1, 1), Position(2, 0), Position(2, 2)],
+			3: [Position(0, 0), Position(0, 2), Position(1, 1), Position(2, 0), Position(2, 2)]
+		},
+		"initial_offset": (0, 3),
+		"preview_offset": (270, 270)
+	},
+	"LINE3": {
+		"id": 11,
+		"name": "Line 3",
+		"cells": {
+			0: [Position(1, 0), Position(1, 1), Position(1, 2)],
+			1: [Position(0, 1), Position(1, 1), Position(2, 1)],
+			2: [Position(1, 0), Position(1, 1), Position(1, 2)],
+			3: [Position(0, 1), Position(1, 1), Position(2, 1)]
+		},
+		"initial_offset": (0, 3),
+		"preview_offset": (270, 270)
+	},
+	"LONG_L": {
+		"id": 12,
+		"name": "Long L",
+		"cells": {
+			0: [Position(0, 2), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 0)],
+			1: [Position(0, 0), Position(0, 1), Position(1, 1), Position(2, 1), Position(2, 2)],
+			2: [Position(0, 2), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 0)],
+			3: [Position(0, 0), Position(0, 1), Position(1, 1), Position(2, 1), Position(2, 2)]
+		},
+		"initial_offset": (0, 3),
+		"preview_offset": (270, 270)
 	}
 }
 

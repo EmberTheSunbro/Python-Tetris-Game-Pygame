@@ -10,7 +10,26 @@ class Colors:
 	white = (255, 255, 255)
 	dark_blue = (44, 44, 127)
 	light_blue = (59, 85, 162)
+	pink = (255, 105, 180)
+	lime = (191, 255, 0)
+	teal = (0, 128, 128)
+	maroon = (128, 0, 0)
+	navy = (0, 0, 128)
 
 	@classmethod
 	def get_cell_colors(cls):
-		return [cls.dark_grey, cls.green, cls.red, cls.orange, cls.yellow, cls.purple, cls.cyan, cls.blue]
+		return [
+			cls.dark_grey,  # 0 - empty
+			cls.green,      # 1 - L block
+			cls.red,        # 2 - J block
+			cls.orange,     # 3 - I block
+			cls.yellow,     # 4 - O block
+			cls.purple,     # 5 - S block
+			cls.cyan,       # 6 - T block
+			cls.blue,       # 7 - Z block
+			cls.pink,       # 8 - Plus block
+			cls.lime,       # 9 - U block
+			cls.teal,       # 10 - X block
+			cls.maroon,     # 11 - Line 3 block
+			cls.navy        # 12 - Long L block
+		]

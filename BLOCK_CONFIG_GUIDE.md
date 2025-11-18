@@ -85,10 +85,18 @@ The color at index `id` will be used for that block.
 
 ## Current Blocks
 
-- **L**: L-shaped block (id: 1)
-- **J**: J-shaped block (id: 2)
-- **I**: Line block (id: 3)
-- **O**: Square block (id: 4)
-- **S**: S-shaped block (id: 5)
-- **T**: T-shaped block (id: 6)
-- **Z**: Z-shaped block (id: 7)
+### Standard Tetrominoes (4-cell blocks)
+- **L**: L-shaped block (id: 1) - Green
+- **J**: J-shaped block (id: 2) - Red
+- **I**: Line block (id: 3) - Orange
+- **O**: Square block (id: 4) - Yellow
+- **S**: S-shaped block (id: 5) - Purple
+- **T**: T-shaped block (id: 6) - Cyan
+- **Z**: Z-shaped block (id: 7) - Blue
+
+### Extended Blocks (5-cell and 3-cell)
+- **P**: Plus/Cross block (id: 8) - Pink - 5-cell symmetric cross shape
+- **U**: U-shaped block (id: 9) - Lime - 5-cell U shape
+- **X**: X-shaped block (id: 10) - Teal - 5-cell X shape (diagonal cross)
+- **LINE3**: 3-cell line block (id: 11) - Maroon - Smaller version of I block
+- **LONG_L**: Extended L block (id: 12) - Navy - 5-cell L variant
