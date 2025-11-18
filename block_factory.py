@@ -3,6 +3,7 @@ Block Factory - Creates block instances from configuration
 """
 from block import Block
 from block_config import BLOCKS, get_block_config
+from block_rotation import generate_rotation_states
 
 class BlockFactory:
 	"""Factory class for creating blocks from configuration"""
@@ -25,8 +26,12 @@ class BlockFactory:
 		# Create block with ID from config
 		block = Block(config["id"])
 		
-		# Set cells from config
-		block.cells = config["cells"].copy()
+		# Generate rotation states from base_shape
+		base_shape = config["base_shape"]
+		rotation_states = generate_rotation_states(base_shape, max_rotations=4)
+		
+		# Set cells with generated rotation states
+		block.cells = rotation_states
 		
 		# Apply initial offset
 		row_offset, col_offset = config["initial_offset"]

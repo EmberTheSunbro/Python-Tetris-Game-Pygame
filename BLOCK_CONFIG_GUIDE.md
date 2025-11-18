@@ -8,18 +8,13 @@ All blocks are defined in `block_config.py` as data structures. The `BlockFactor
 
 ## Adding a New Block
 
-To add a new block type, simply add a new entry to the `BLOCKS` dictionary in `block_config.py`:
+To add a new block type, simply add a new entry to the `BLOCKS` dictionary in `block_config.py`. **You only need to define the base shape** - all rotation states are generated automatically!
 
 ```python
 "NEW_BLOCK": {
-    "id": 8,  # Unique ID (must not conflict with existing blocks)
+    "id": 13,  # Unique ID (must not conflict with existing blocks)
     "name": "New Block",
-    "cells": {
-        0: [Position(0, 0), Position(0, 1), Position(1, 0), Position(1, 1), Position(2, 0)],  # Rotation state 0
-        1: [Position(0, 0), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 2)],  # Rotation state 1
-        2: [Position(0, 2), Position(1, 1), Position(1, 2), Position(2, 1), Position(2, 2)],  # Rotation state 2
-        3: [Position(0, 0), Position(1, 0), Position(1, 1), Position(2, 1), Position(2, 2)]   # Rotation state 3
-    },
+    "base_shape": [Position(0, 0), Position(0, 1), Position(1, 0), Position(1, 1), Position(2, 0)],
     "initial_offset": (0, 3),  # (row_offset, column_offset) - starting position
     "preview_offset": (270, 270)  # (x, y) - position in the "Next" preview box
 }
@@ -29,29 +24,35 @@ To add a new block type, simply add a new entry to the `BLOCKS` dictionary in `b
 
 - **id**: Unique numeric identifier (used for colors and grid storage)
 - **name**: Human-readable name for the block
-- **cells**: Dictionary mapping rotation states (0, 1, 2, 3) to lists of Position objects
+- **base_shape**: List of Position objects representing the block's base shape (rotation state 0)
   - Each Position(row, col) represents one cell of the block
-  - Positions are relative to the block's origin
-  - Use 0-3 rotation states (or fewer if block doesn't rotate)
+  - Positions are relative to the block's origin (typically starting from (0,0))
+  - **All rotation states (0°, 90°, 180°, 270°) are automatically generated!**
 - **initial_offset**: Starting position offset when block spawns (row, col)
 - **preview_offset**: Pixel coordinates for drawing in the "Next" preview area
 
-### Example: Adding a 5-Cell Block
+### Example: Adding a 5-Cell Plus Block
 
 ```python
-"PENTOMINO": {
-    "id": 8,
-    "name": "Pentomino",
-    "cells": {
-        0: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
-        1: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
-        2: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
-        3: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)]
-    },
+"PLUS": {
+    "id": 13,
+    "name": "Plus Block",
+    "base_shape": [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
     "initial_offset": (0, 3),
     "preview_offset": (270, 270)
 }
 ```
+
+**That's it!** The system will automatically:
+- Generate all 4 rotation states (or fewer if the block is symmetric)
+- Handle rotation around the block's center
+- Normalize positions correctly
+
+### Rotation Behavior
+
+- **Symmetric blocks** (like O, Plus, X): Will automatically detect that rotations repeat and only generate unique states
+- **Asymmetric blocks** (like L, J, S, Z): Will generate all 4 rotation states
+- **Blocks with 2-fold symmetry** (like I, LINE3): Will generate 2 rotation states
 
 ## Color Support
 
