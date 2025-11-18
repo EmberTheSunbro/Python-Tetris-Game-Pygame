@@ -2,6 +2,7 @@ from grid import Grid
 from blocks import *
 import random
 import pygame
+import time
 
 class Game:
 	def __init__(self):
@@ -11,20 +12,39 @@ class Game:
 		self.next_block = self.get_random_block()
 		self.game_over = False
 		self.score = 0
+		self.difficulty = 1.0  # Default difficulty multiplier (1.0 = normal)
+		self.game_start_time = time.time()
 		self.rotate_sound = pygame.mixer.Sound("Sounds/rotate.ogg")
 		self.clear_sound = pygame.mixer.Sound("Sounds/clear.ogg")
 
 		pygame.mixer.music.load("Sounds/music.ogg")
 		pygame.mixer.music.play(-1)
+	
+	def set_difficulty(self, difficulty):
+		"""Set difficulty multiplier (0.5 to 2.0)"""
+		self.difficulty = max(0.5, min(2.0, difficulty))
+	
+	def get_speed_multiplier(self):
+		"""Calculate speed multiplier based on difficulty and elapsed time"""
+		elapsed_time = time.time() - self.game_start_time
+		# Base speed increases over time, multiplied by difficulty
+		# At difficulty 1.0, speed increases by 0.1 every 10 seconds
+		time_based_speed = 1.0 + (elapsed_time / 100.0)  # Gradual increase
+		return time_based_speed * self.difficulty
+	
+	def get_score_multiplier(self):
+		"""Get score multiplier based on difficulty"""
+		return self.difficulty
 
 	def update_score(self, lines_cleared, move_down_points):
+		score_multiplier = self.get_score_multiplier()
 		if lines_cleared == 1:
-			self.score += 100
+			self.score += int(100 * score_multiplier)
 		elif lines_cleared == 2:
-			self.score += 300
+			self.score += int(300 * score_multiplier)
 		elif lines_cleared == 3:
-			self.score += 500
-		self.score += move_down_points
+			self.score += int(500 * score_multiplier)
+		self.score += int(move_down_points * score_multiplier)
 
 	def get_random_block(self):
 		if len(self.blocks) == 0:
@@ -68,6 +88,7 @@ class Game:
 		self.current_block = self.get_random_block()
 		self.next_block = self.get_random_block()
 		self.score = 0
+		self.game_start_time = time.time()
 
 	def block_fits(self):
 		tiles = self.current_block.get_cell_positions()
