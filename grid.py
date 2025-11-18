@@ -41,13 +41,36 @@ class Grid:
 			self.grid[row][column] = 0
 
 	def clear_full_rows(self):
+		"""
+		Clear all full rows and move remaining rows down.
+		Returns the number of rows cleared.
+		"""
 		completed = 0
-		for row in range(self.num_rows-1, 0, -1):
-			if self.is_row_full(row):
-				self.clear_row(row)
+		
+		# Use a two-pointer approach: read from top, write to bottom
+		# This ensures we don't overwrite data we haven't read yet
+		write_row = self.num_rows - 1  # Start writing at the bottom
+		
+		# Scan from bottom to top, compacting non-full rows
+		for read_row in range(self.num_rows - 1, -1, -1):
+			if self.is_row_full(read_row):
+				# This row is full, clear it and don't write it
+				self.clear_row(read_row)
 				completed += 1
-			elif completed > 0:
-				self.move_row_down(row, completed)
+			else:
+				# This row is not full, keep it
+				if read_row != write_row:
+					# Copy the row to the write position
+					for col in range(self.num_cols):
+						self.grid[write_row][col] = self.grid[read_row][col]
+					# Clear the source row
+					self.clear_row(read_row)
+				write_row -= 1
+		
+		# Clear any rows above the write pointer (these are now empty)
+		for row in range(write_row, -1, -1):
+			self.clear_row(row)
+		
 		return completed
 
 	def reset(self):
