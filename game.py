@@ -1,12 +1,13 @@
 from grid import Grid
-from blocks import *
+from block_factory import BlockFactory
 import random
 import pygame
 
 class Game:
 	def __init__(self):
 		self.grid = Grid()
-		self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+		self.block_keys = BlockFactory.get_block_keys()
+		self.blocks = BlockFactory.create_all_blocks()
 		self.current_block = self.get_random_block()
 		self.next_block = self.get_random_block()
 		self.game_over = False
@@ -32,7 +33,7 @@ class Game:
 
 	def get_random_block(self):
 		if len(self.blocks) == 0:
-			self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+			self.blocks = BlockFactory.create_all_blocks()
 		block = random.choice(self.blocks)
 		self.blocks.remove(block)
 		return block
@@ -68,7 +69,7 @@ class Game:
 
 	def reset(self):
 		self.grid.reset()
-		self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+		self.blocks = BlockFactory.create_all_blocks()
 		self.current_block = self.get_random_block()
 		self.next_block = self.get_random_block()
 		self.score = 0
@@ -121,9 +122,7 @@ class Game:
 		self.grid.draw(screen)
 		self.current_block.draw(screen, 11, 11)
 
-		if self.next_block.id == 3:
-			self.next_block.draw(screen, 255, 290)
-		elif self.next_block.id == 4:
-			self.next_block.draw(screen, 255, 280)
-		else:
-			self.next_block.draw(screen, 270, 270)
+		# Get preview offset from config based on block ID
+		from block_config import get_preview_offset_by_id
+		offset_x, offset_y = get_preview_offset_by_id(self.next_block.id)
+		self.next_block.draw(screen, offset_x, offset_y)
