@@ -7,15 +7,13 @@ def rotate_positions_90_clockwise(positions):
 	"""
 	Rotate a list of positions 90 degrees clockwise around their geometric center.
 	
-	In a grid coordinate system where:
-	- row increases downward (positive = down)
-	- col increases rightward (positive = right)
+	Uses the transpose-and-reverse method for 90° clockwise rotation:
+	1. Convert positions to a grid representation
+	2. Transpose the grid (swap row and col)
+	3. Reverse each row (for clockwise rotation)
+	4. Convert back to position list
 	
-	90° clockwise rotation: (row, col) -> (col, -row) relative to origin
-	But we need to account for the fact that -row means "up" in our system.
-	
-	The rotation is performed around the center of the bounding box,
-	then the result is normalized to start from (0, 0).
+	This method preserves the exact shape of the block.
 	
 	Args:
 		positions: List of Position objects representing a block shape
@@ -35,41 +33,38 @@ def rotate_positions_90_clockwise(positions):
 	min_col = min(p.column for p in positions)
 	max_col = max(p.column for p in positions)
 	
-	# Calculate center of bounding box
-	# Use floating point for precision, then round
-	center_row = (min_row + max_row) / 2.0
-	center_col = (min_col + max_col) / 2.0
+	width = max_col - min_col + 1
+	height = max_row - min_row + 1
 	
-	# Rotate each position 90 degrees clockwise around the center
-	# For 90° clockwise: translate to origin, rotate, translate back
-	# Rotation formula: (row, col) -> (col, -row) around origin
-	rotated = []
+	# Create a grid representation (2D list)
+	# Initialize grid with False (empty)
+	grid = [[False for _ in range(width)] for _ in range(height)]
+	
+	# Mark positions as True (filled)
 	for pos in positions:
-		# Translate to center-origin coordinates
-		rel_row = float(pos.row) - center_row
-		rel_col = float(pos.column) - center_col
-		
-		# Apply 90° clockwise rotation: (row, col) -> (col, -row)
-		# This means: new_row = old_col, new_col = -old_row
-		new_rel_row = rel_col
-		new_rel_col = -rel_row
-		
-		# Translate back from center
-		new_row = center_row + new_rel_row
-		new_col = center_col + new_rel_col
-		
-		# Round to nearest integer
-		rotated.append(Position(int(round(new_row)), int(round(new_col))))
+		grid_row = pos.row - min_row
+		grid_col = pos.column - min_col
+		grid[grid_row][grid_col] = True
 	
-	# Normalize to start from (0, 0) by finding the new minimum
-	if rotated:
-		min_rot_row = min(p.row for p in rotated)
-		min_rot_col = min(p.column for p in rotated)
-		normalized = [Position(p.row - min_rot_row, p.column - min_rot_col) for p in rotated]
-	else:
-		normalized = []
+	# Rotate 90° clockwise: transpose then reverse each row
+	# Transpose: swap dimensions (height x width -> width x height)
+	transposed = [[grid[row][col] for row in range(height)] for col in range(width)]
 	
-	return normalized
+	# Reverse each row for clockwise rotation
+	rotated_grid = [row[::-1] for row in transposed]
+	
+	# Convert rotated grid back to position list
+	rotated = []
+	new_height = len(rotated_grid)
+	new_width = len(rotated_grid[0]) if rotated_grid else 0
+	
+	for row in range(new_height):
+		for col in range(new_width):
+			if rotated_grid[row][col]:
+				rotated.append(Position(row, col))
+	
+	# Result is already normalized (starts from 0,0)
+	return rotated
 
 def normalize_shape(positions):
 	"""
